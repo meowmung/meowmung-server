@@ -10,5 +10,10 @@
         <module name="member.main" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="member" target="17" />
+      <module name="member.main" target="17" />
+      <module name="member.test" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>
