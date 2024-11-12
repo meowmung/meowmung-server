@@ -1,11 +1,10 @@
 package com.example.member.config;
 
-import java.beans.BeanProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-@Component
+@Configuration
 public class Config {
     @Bean
     public RestTemplate restTemplate() {
