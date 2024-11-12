@@ -1,5 +1,6 @@
 package com.example.member.controller;
 
+
 import com.example.member.domain.OauthToken;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -19,6 +21,11 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -27,7 +34,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
-
     private final RestTemplate restTemplate;
     @Value("${registration.naver.client-id}")
     private String clientId;
@@ -43,6 +49,7 @@ public class MemberController {
     private String tokenUri;
     @Value("${provider.naver.user-info-uri}")
     private String userInfoUri;
+
 
     @Value("${security.oauth2.client.registration.kakao.client-id}")
     private String client_id;
@@ -60,6 +67,7 @@ public class MemberController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE));
 
+
     // 로그인 한다고 하면
     // 네이버 로그인 페이지 ( redirect url ) 을 사용자에게 주기
     // 거기로 사용자가 로그인 하면
@@ -67,6 +75,7 @@ public class MemberController {
     @GetMapping("login/naver")
     public ResponseEntity<String> naverLogin() {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
         params.set("client_id", client_id);
             params.set("redirect_uri", redirect_uri);
         params.set("response_type", response_type);
@@ -80,12 +89,14 @@ public class MemberController {
                 .queryParams(params)
                 .encode().build().toUri();
         return ResponseEntity.status(302).location(uri).build();
+
                 .fromUriString("https://kauth.kakao.com/oauth/authorize")
                     .queryParams(params)
                     .encode().build().toUri();
         ResponseEntity<String> b = ResponseEntity.status(302).location(uri).build();
 //        var a = restTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), String.class);
         return b;
+
     }
 
     // 발급된 인가 코드를 callback url 로 받아야함
@@ -93,6 +104,7 @@ public class MemberController {
     @GetMapping("/login/naver/callback")
     public String callback(@RequestParam("code") String code
                         , @RequestParam("state") String state) {
+
 
     @GetMapping("oauth")
     public String getMember(@RequestParam("code") String code) {
@@ -108,12 +120,17 @@ public class MemberController {
         body.add("redirect_uri", redirect_uri);  // 여기에 리다이렉트 URI를 넣어주세요
         body.add("code", code);    // 여기에 인가 코드를 넣어주세요
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/x-www-form-urlencoded");
+
+
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", authorizationGrantType);
         params.add("client_id", clientId);
         params.add("client_secret", clientSecret);
         params.add("code", code);
         params.add("state", state);
+
         // 요청 엔터티 생성
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
 
@@ -141,6 +158,10 @@ public class MemberController {
             System.out.println("---------------------------------------");
         } catch (JsonProcessingException e) {
             System.out.println(e);
+
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params, headers);
+        String response = restTemplate.exchange(tokenUri, HttpMethod.POST, requestEntity, String.class).getBody();
+
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             Map jsonMap = objectMapper.readValue(response, Map.class);
@@ -173,6 +194,7 @@ public class MemberController {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
+
         headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE));
         headers.set("Authorization","Bearer "+oauthToken.getAccess_token());
         System.out.println("Bearer "+oauthToken.getAccess_token());
@@ -180,6 +202,7 @@ public class MemberController {
 
         // 요청 엔터티 생성
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(headers);
+
         for (Map.Entry<String, String> entry : headerMap.entrySet()) {
             headers.add(entry.getKey(), entry.getValue());
         }
@@ -198,6 +221,10 @@ public class MemberController {
         System.out.println("--------------------------------------");
         System.out.println("Get-hi");
         return "Get - hi";
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+
         try {
             // GET 요청을 보낼 때 HttpEntity로 헤더를 포함시킴
             ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
@@ -211,6 +238,7 @@ public class MemberController {
 
 }
 
+
     @PostMapping("hi")
     public String hi2() {
         System.out.println("--------------------------------------");
@@ -218,3 +246,4 @@ public class MemberController {
         return "Post - hi";
     }
 }
+
