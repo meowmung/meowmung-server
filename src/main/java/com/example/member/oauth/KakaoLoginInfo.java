@@ -65,7 +65,7 @@ public class KakaoLoginInfo implements OauthLoginInfo {
                 .fromUriString(kakao_token_uri)
                 .queryParams(params)
                 .encode().build().toUri();
-        return restTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+        return restTemplate.exchange(kakao_token_uri, HttpMethod.GET, new HttpEntity<>(headers), String.class);
     }
 
     @Override
