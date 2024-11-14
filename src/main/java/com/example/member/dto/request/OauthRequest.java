@@ -4,8 +4,5 @@ import com.example.member.common.LoginType;
 import lombok.Getter;
 
 @Getter
-public class OauthRequest {
-    private String code;
-
-    private LoginType type;
+public record OauthRequest(String code, LoginType type) {
 }

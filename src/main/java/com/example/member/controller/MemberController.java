@@ -1,6 +1,8 @@
 package com.example.member.controller;
 
+import com.example.member.dto.request.LoginRequest;
 import com.example.member.dto.request.OauthRequest;
+import com.example.member.dto.request.RegisterRequest;
 import com.example.member.oauth.KakaoLoginInfo;
 import com.example.member.oauth.OauthLoginInfo;
 import com.example.member.service.MemberService;
@@ -28,11 +30,20 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class MemberController {
 
     private final MemberService memberService;
-    private final List<OauthLoginInfo> oauthLoginInfoList;
 
     @PostMapping("/oauth/login")
     public ResponseEntity<Object> login(@RequestBody OauthRequest request, HttpServletResponse response) {
         memberService.oauthLogin(request, response);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/auth/login")
+    public String login(@RequestBody LoginRequest loginRequest) {
+        return memberService.login(loginRequest);
+    }
+
+    @PostMapping("/auth/register")
+    public void register(@RequestBody RegisterRequest registerRequest) {
+        memberService.register(registerRequest);
     }
 }
