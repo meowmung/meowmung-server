@@ -54,18 +54,14 @@ public class KakaoLoginInfo implements OauthLoginInfo {
     public ResponseEntity<String> requestAccessToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE));
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.set("grant_type", kakao_grant_type);
-        params.set("client_id", kakao_client_id);
-        params.set("client_secret", kakao_client_secret);
-        params.set("redirect_uri", kakao_redirect_uri);
-        params.set("code", code);
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.set("grant_type", kakao_grant_type);
+        body.set("client_id", kakao_client_id);
+        body.set("client_secret", kakao_client_secret);
+        body.set("redirect_uri", kakao_redirect_uri);
+        body.set("code", code);
 
-        URI uri = UriComponentsBuilder
-                .fromUriString(kakao_token_uri)
-                .queryParams(params)
-                .encode().build().toUri();
-        return restTemplate.exchange(kakao_token_uri, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+        return restTemplate.exchange(kakao_token_uri, HttpMethod.POST, new HttpEntity<>(body,headers), String.class);
     }
 
     @Override

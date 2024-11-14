@@ -4,6 +4,7 @@ import com.example.member.common.LoginType;
 import com.example.member.common.MemberRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -16,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @NoArgsConstructor
@@ -23,6 +25,7 @@ import org.springframework.data.annotation.CreatedDate;
 @Builder
 @Getter
 @Table(name = "member")
+@EntityListeners(AuditingEntityListener.class)
 public class Member {
 
     @Id
