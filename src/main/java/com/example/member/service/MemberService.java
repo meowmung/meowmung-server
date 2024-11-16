@@ -3,28 +3,30 @@ package com.example.member.service;
 import com.example.member.common.LoginType;
 import com.example.member.dto.OauthTokenDto;
 import com.example.member.dto.request.LoginRequest;
+import com.example.member.dto.request.MailCheckRequest;
 import com.example.member.dto.request.MailRequest;
 import com.example.member.dto.request.OauthRequest;
 import com.example.member.dto.request.RegisterRequest;
 import com.example.member.entity.Member;
+import com.example.member.entity.RandomNumber;
 import com.example.member.jwt.JwtUtils;
 import com.example.member.oauth.OauthLoginInfo;
 import com.example.member.repository.MemberRepository;
+import com.example.member.repository.RandomNumberRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletResponse;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -42,6 +44,7 @@ public class MemberService {
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
     private final Context context;
+    private final RandomNumberRepository randomNumberRepository;
 
     public String login(LoginRequest loginRequest) {
 //        if (!emailExists(loginRequest.email())){
@@ -81,20 +84,32 @@ public class MemberService {
         String code = createCode();
         context.setVariable("code", code);
         String process = templateEngine.process("mail-template", context);
-//        SimpleMailMessage message = new SimpleMailMessage();
+        RandomNumber randomNumber = new RandomNumber(mailRequest.mail(), code);
+        randomNumberRepository.save(randomNumber);
         // 수신자, 제목, 내용 설정
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            message.setTo(mailRequest.getMail());
+            message.setTo(mailRequest.mail());
             message.setSubject("멍냥냥 요청하신 인증 번호를 알려드립니다.");
-            message.setText(process,true);
+            message.setText(process, true);
 
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
         // 메일 전송
         javaMailSender.send(mimeMessage);
+    }
+
+    public boolean mailCheck(MailCheckRequest mailCheckRequest) {
+        Optional<RandomNumber> byId = randomNumberRepository.findById(mailCheckRequest.getMail());
+        if (byId.isEmpty()) {
+            throw new RuntimeException("그런 이메일 없음");
+        }
+        if (!Objects.equals(mailCheckRequest.getCode(), byId.get().getRandomNumber())) {
+            return false;
+        }
+        return true;
     }
 
     /**

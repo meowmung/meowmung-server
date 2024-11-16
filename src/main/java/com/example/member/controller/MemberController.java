@@ -1,6 +1,7 @@
 package com.example.member.controller;
 
 import com.example.member.dto.request.LoginRequest;
+import com.example.member.dto.request.MailCheckRequest;
 import com.example.member.dto.request.MailRequest;
 import com.example.member.dto.request.OauthRequest;
 import com.example.member.dto.request.RegisterRequest;
@@ -50,6 +51,11 @@ public class MemberController {
 
     @PostMapping("/auth/mail")
     public void sendMail(@RequestBody MailRequest mailRequest) {
-            memberService.sendMail(mailRequest);
+        memberService.sendMail(mailRequest);
+    }
+
+    @GetMapping("/auth/mail")
+    public boolean mailCheck(@RequestBody MailCheckRequest mailCheckRequest){
+        return memberService.mailCheck(mailCheckRequest);
     }
 }

@@ -74,6 +74,7 @@ public class TestController {
                 .encode().build().toUri();
         return ResponseEntity.status(302).location(uri).build();
     }
+
     @GetMapping("/test")
     public void test() {
         String code = memberService.createCode();

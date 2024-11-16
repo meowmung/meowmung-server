@@ -66,7 +66,7 @@ public class Config {
     }
 
     @Bean
-    public Context context(){
+    public Context context() {
         return new Context();
     }
 }
