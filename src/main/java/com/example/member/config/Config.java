@@ -54,9 +54,9 @@ public class Config {
         return javaMailSender;
     }
 
-    @Value("${spring.redis.host}")
+    @Value("${spring.data.redis.host}")
     private String redis_host;
-    @Value("${spring.redis.port}")
+    @Value("${spring.data.redis.port}")
     private int redis_port;
 
     @Bean
