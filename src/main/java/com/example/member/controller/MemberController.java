@@ -1,11 +1,13 @@
 package com.example.member.controller;
 
 import com.example.member.dto.request.LoginRequest;
+import com.example.member.dto.request.MailRequest;
 import com.example.member.dto.request.OauthRequest;
 import com.example.member.dto.request.RegisterRequest;
 import com.example.member.oauth.KakaoLoginInfo;
 import com.example.member.oauth.OauthLoginInfo;
 import com.example.member.service.MemberService;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.util.List;
@@ -32,9 +34,8 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/oauth/login")
-    public ResponseEntity<Object> login(@RequestBody OauthRequest request, HttpServletResponse response) {
-        memberService.oauthLogin(request, response);
-        return ResponseEntity.ok().build();
+    public String login(@RequestBody OauthRequest request, HttpServletResponse response) {
+        return memberService.oauthLogin(request, response);
     }
 
     @PostMapping("/auth/login")
@@ -45,5 +46,10 @@ public class MemberController {
     @PostMapping("/auth/register")
     public void register(@RequestBody RegisterRequest registerRequest) {
         memberService.register(registerRequest);
+    }
+
+    @PostMapping("/auth/mail")
+    public void sendMail(@RequestBody MailRequest mailRequest) {
+            memberService.sendMail(mailRequest);
     }
 }
