@@ -1,11 +1,13 @@
 package com.example.member.controller;
 
+import com.example.member.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties.View;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -36,6 +38,8 @@ public class TestController {
 
     @Value("${security.oauth2.client.registration.naver.redirect-uri}")
     private String naver_redirect_uri;
+
+    private final MemberService memberService;
 
     // 로그인 한다고 하면
     // 네이버 로그인 페이지 ( redirect url ) 을 사용자에게 주기
@@ -69,6 +73,12 @@ public class TestController {
                 .queryParams(params)
                 .encode().build().toUri();
         return ResponseEntity.status(302).location(uri).build();
+    }
+    @GetMapping("/test")
+    public void test() {
+        String code = memberService.createCode();
+        System.out.println(code);
+//        return mai
     }
 
 }

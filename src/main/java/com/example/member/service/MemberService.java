@@ -13,8 +13,11 @@ import com.example.member.repository.MemberRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletResponse;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +27,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 @Slf4j
@@ -35,6 +40,8 @@ public class MemberService {
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender javaMailSender;
+    private final SpringTemplateEngine templateEngine;
+    private final Context context;
 
     public String login(LoginRequest loginRequest) {
 //        if (!emailExists(loginRequest.email())){
@@ -71,21 +78,23 @@ public class MemberService {
     }
 
     public void sendMail(MailRequest mailRequest) {
-            SimpleMailMessage message = new SimpleMailMessage();
-//            message.setTo();
-//            MimeMessage message = javaMailSender.createMimeMessage();
-//            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
-//            message.setReplyTo();
-            // 수신자, 제목, 내용 설정
+        String code = createCode();
+        context.setVariable("code", code);
+        String process = templateEngine.process("mail-template", context);
+//        SimpleMailMessage message = new SimpleMailMessage();
+        // 수신자, 제목, 내용 설정
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             message.setTo(mailRequest.getMail());
-            message.setSubject("요청하신 인증 번호를 알려드립니다.");
-            message.setText("응애");
+            message.setSubject("멍냥냥 요청하신 인증 번호를 알려드립니다.");
+            message.setText(process,true);
 
-            // 첨부 파일 추가 (필요할 경우)
-            // helper.addAttachment("파일이름", new File("파일경로"));
-
-            // 메일 전송
-            javaMailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+        // 메일 전송
+        javaMailSender.send(mimeMessage);
     }
 
     /**
@@ -117,4 +126,20 @@ public class MemberService {
         return jwtUtils.generateToken(userInfo.getEmail());
     }
 
+    public String createCode() {
+        int length = 6;
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        try {
+            Random random = SecureRandom.getInstanceStrong();
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < length; i++) {
+                int index = random.nextInt(characters.length());
+                builder.append(characters.charAt(index));
+            }
+            return builder.toString();
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("MemberService.createCode() exception occur");
+            throw new RuntimeException(e);
+        }
+    }
 }

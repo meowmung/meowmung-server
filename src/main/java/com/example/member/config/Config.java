@@ -12,6 +12,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestTemplate;
+import org.thymeleaf.context.Context;
 
 @Configuration
 public class Config {
@@ -62,5 +63,10 @@ public class Config {
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(redis_host, redis_port);
+    }
+
+    @Bean
+    public Context context(){
+        return new Context();
     }
 }
