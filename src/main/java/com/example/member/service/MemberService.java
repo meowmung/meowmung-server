@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +52,7 @@ public class MemberService {
 //        if (!emailExists(loginRequest.email())){
 //            throw new RuntimeException();
 //        }
+        validateEmail(loginRequest.email());
         Optional<Member> loginMember = memberRepository.findByEmail(loginRequest.email());
         if (loginMember.isEmpty()) {
             throw new RuntimeException("로그인 실패");
@@ -63,6 +66,7 @@ public class MemberService {
     }
 
     public void register(RegisterRequest registerRequest) {
+        validateEmail(registerRequest.email());
         Optional<Member> byEmail = memberRepository.findByEmail(registerRequest.email());
         if (byEmail.isPresent()) {
             throw new RuntimeException("이미 등록된 이메일");
@@ -81,16 +85,17 @@ public class MemberService {
     }
 
     public void sendMail(MailRequest mailRequest) {
+        validateEmail(mailRequest.getMail());
         String code = createCode();
         context.setVariable("code", code);
         String process = templateEngine.process("mail-template", context);
-        RandomNumber randomNumber = new RandomNumber(mailRequest.mail(), code);
+        RandomNumber randomNumber = new RandomNumber(mailRequest.getMail(), code);
         randomNumberRepository.save(randomNumber);
         // 수신자, 제목, 내용 설정
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            message.setTo(mailRequest.mail());
+            message.setTo(mailRequest.getMail());
             message.setSubject("멍냥냥 요청하신 인증 번호를 알려드립니다.");
             message.setText(process, true);
 
@@ -102,6 +107,7 @@ public class MemberService {
     }
 
     public boolean mailCheck(MailCheckRequest mailCheckRequest) {
+        validateEmail(mailCheckRequest.getMail());
         Optional<RandomNumber> byId = randomNumberRepository.findById(mailCheckRequest.getMail());
         if (byId.isEmpty()) {
             throw new RuntimeException("그런 이메일 없음");
@@ -139,6 +145,16 @@ public class MemberService {
         }
         // 있으면 패스
         return jwtUtils.generateToken(userInfo.getEmail());
+    }
+
+    public void validateEmail(String email) {
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        Pattern emailPattern = Pattern.compile(emailRegex);
+        Matcher emailMatcher = emailPattern.matcher(email);
+
+        if (!emailMatcher.matches()) {
+            throw new RuntimeException("이메일 형식이 올바르지 않습니다.");
+        }
     }
 
     public String createCode() {
