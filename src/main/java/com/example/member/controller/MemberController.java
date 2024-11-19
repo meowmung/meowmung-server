@@ -46,6 +46,7 @@ public class MemberController {
 
     @PostMapping("/auth/register")
     public void register(@RequestBody RegisterRequest registerRequest) {
+        log.info("register request: {}", registerRequest);
         memberService.register(registerRequest);
     }
 

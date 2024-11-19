@@ -3,5 +3,6 @@ package com.example.member.dto.request;
 import lombok.Getter;
 
 @Getter
-public record MailRequest(String mail) {
+public class MailRequest {
+    private String mail;
 }

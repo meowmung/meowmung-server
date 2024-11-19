@@ -62,11 +62,13 @@ public class MemberService {
                 loginRequest.password(), member.getPassword())) {
             throw new RuntimeException("로그인 실패");
         }
-        return jwtUtils.generateToken(member.getEmail());
+        return jwtUtils.generateToken(member.getEmail(), member.getNickname());
     }
 
     public void register(RegisterRequest registerRequest) {
         validateEmail(registerRequest.email());
+        validatePassword(registerRequest.password());
+
         Optional<Member> byEmail = memberRepository.findByEmail(registerRequest.email());
         if (byEmail.isPresent()) {
             throw new RuntimeException("이미 등록된 이메일");
@@ -144,7 +146,7 @@ public class MemberService {
             memberRepository.save(userInfo);
         }
         // 있으면 패스
-        return jwtUtils.generateToken(userInfo.getEmail());
+        return jwtUtils.generateToken(userInfo.getEmail(), userInfo.getNickname());
     }
 
     public void validateEmail(String email) {
@@ -154,6 +156,17 @@ public class MemberService {
 
         if (!emailMatcher.matches()) {
             throw new RuntimeException("이메일 형식이 올바르지 않습니다.");
+        }
+    }
+
+
+    public void validatePassword(String password) {
+        // 최소 8자, 소문자 하나 이상, 숫자 하나 이상, 특수 문자 하나 이상 포함
+        String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$";
+        Pattern pattern = Pattern.compile(passwordRegex);
+
+        if (password == null || !pattern.matcher(password).matches()) {
+            throw new IllegalArgumentException("비밀번호가 보안 요건을 충족하지 않습니다.");
         }
     }
 

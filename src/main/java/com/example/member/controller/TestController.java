@@ -1,5 +1,7 @@
 package com.example.member.controller;
 
+import com.example.member.entity.CustomUserDetails;
+import com.example.member.entity.Member;
 import com.example.member.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
@@ -12,9 +14,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -75,10 +79,37 @@ public class TestController {
         return ResponseEntity.status(302).location(uri).build();
     }
 
-    @GetMapping("/test")
-    public void test() {
-        String code = memberService.createCode();
-        System.out.println(code);
+    @GetMapping("/test/v1")
+    public void test(@AuthenticationPrincipal String hi) {
+//        String code = memberService.createCode();
+        System.out.println(hi);
+//        return mai
+    }
+
+    @GetMapping("/test/v2") // 이게 성공
+    public void testb2(@AuthenticationPrincipal CustomUserDetails hi) {
+//        String code = memberService.createCode();
+        System.out.println(hi.getAuthorities());
+//        hi.getAuthorities()
+        System.out.println(hi.getPassword()); // 업승
+        System.out.println(hi.getUsername());
+        System.out.println(hi);
+//        return mai
+    }
+
+    @GetMapping("/test/v3")
+    public void testv3(@AuthenticationPrincipal Member hi) {
+//        String code = memberService.createCode();
+        System.out.println(hi);
+//        return mai
+    }
+
+    @GetMapping("/test/v4")
+    public void testv3(@RequestHeader("X-Authorization-nickname") String hi,
+                       @RequestHeader("X-Authorization-email") String hi2) {
+//        String code = memberService.createCode();
+        System.out.println(hi2);
+        System.out.println(hi);
 //        return mai
     }
 
