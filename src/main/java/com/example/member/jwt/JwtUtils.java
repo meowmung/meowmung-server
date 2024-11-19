@@ -5,9 +5,11 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import javax.crypto.SecretKey;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class JwtUtils {
     private final long expiration;
@@ -22,11 +24,12 @@ public class JwtUtils {
     }
 
     // JWT 생성하기
-    public String generateToken(String email){
+    public String generateToken(String email, String nickname){
         Date expirationDate = new Date(System.currentTimeMillis() + expiration);
         return Jwts.builder()
                 .subject(email)
                 .expiration(expirationDate)
+                .claim("nickname", nickname)
                 .signWith(key)
                 .compact();
     }

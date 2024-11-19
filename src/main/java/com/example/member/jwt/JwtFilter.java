@@ -19,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
     private final UserDetailsService userDetailsService;
+
     // JWT 토큰이 유효한 건지 검사하는 필터
     // 인증 -> 회원가입, 로그인
     @Override
@@ -27,7 +28,9 @@ public class JwtFilter extends OncePerRequestFilter {
         // 헤더에서 JWT를 받아온다
         String authorization = request.getHeader("Authorization");
         // JWT가 제대로 된게 맞다면
-        if (authorization != null && authorization.startsWith("Bearer ")) {
+        if (authorization != null
+//                && authorization.startsWith("Bearer ")
+        ) {
             String token = authorization.substring(7);
             try {
                 // 유저 정보를 찾아온다.

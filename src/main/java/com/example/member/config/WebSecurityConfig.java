@@ -27,10 +27,8 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(
                 request -> request
                         .requestMatchers(
-                                "/auth/login",
-                                "/auth/register",
-                                "/auth/mail",
-                                "/**"
+                                "/auth/**",
+                                "/oauth/**"
                         )
                         .permitAll()
                         .anyRequest()
