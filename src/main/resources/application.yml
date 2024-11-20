@@ -3,4 +3,9 @@ spring:
     name: member
   profiles:
     active: dev
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
 
+server:
+  port: 8081
