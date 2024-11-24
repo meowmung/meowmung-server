@@ -24,12 +24,13 @@ public class JwtUtils {
     }
 
     // JWT 생성하기
-    public String generateToken(String email, String nickname){
+    public String generateToken(String email, String nickname, Long memeberId){
         Date expirationDate = new Date(System.currentTimeMillis() + expiration);
         return Jwts.builder()
                 .subject(email)
                 .expiration(expirationDate)
                 .claim("nickname", nickname)
+                .claim("userId",memeberId)
                 .signWith(key)
                 .compact();
     }

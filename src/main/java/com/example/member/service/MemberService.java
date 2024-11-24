@@ -52,8 +52,8 @@ public class MemberService {
 //        if (!emailExists(loginRequest.email())){
 //            throw new RuntimeException();
 //        }
-        validateEmail(loginRequest.email());
-        Optional<Member> loginMember = memberRepository.findByEmail(loginRequest.email());
+        validateEmail(loginRequest.mail());
+        Optional<Member> loginMember = memberRepository.findByEmail(loginRequest.mail());
         if (loginMember.isEmpty()) {
             throw new RuntimeException("로그인 실패");
         }
@@ -62,14 +62,14 @@ public class MemberService {
                 loginRequest.password(), member.getPassword())) {
             throw new RuntimeException("로그인 실패");
         }
-        return jwtUtils.generateToken(member.getEmail(), member.getNickname());
+        return jwtUtils.generateToken(member.getEmail(), member.getNickname(), member.getId());
     }
 
     public void register(RegisterRequest registerRequest) {
-        validateEmail(registerRequest.email());
+        validateEmail(registerRequest.mail());
         validatePassword(registerRequest.password());
 
-        Optional<Member> byEmail = memberRepository.findByEmail(registerRequest.email());
+        Optional<Member> byEmail = memberRepository.findByEmail(registerRequest.mail());
         if (byEmail.isPresent()) {
             throw new RuntimeException("이미 등록된 이메일");
         }
@@ -140,13 +140,16 @@ public class MemberService {
         OauthTokenDto accessTokenDto = oauthLoginInfo.getAccessToken(accessTokenRes);
         ResponseEntity<String> stringResponseEntity = oauthLoginInfo.requestUserInfo(accessTokenDto);
         Member userInfo = oauthLoginInfo.getUserInfo(stringResponseEntity);
-        // 수정 필요
+        // 유저 정보 만들었습니다.
+        Member savedMember;
         if (!emailExists(userInfo.getEmail())) {
-            // 없으면 만들어
-            memberRepository.save(userInfo);
+            // 계정이 존재 하지 않으면 만들어서
+            savedMember = memberRepository.save(userInfo);
         }
+        savedMember = memberRepository.findByEmail(userInfo.getEmail())
+                .orElseThrow(RuntimeException::new);
         // 있으면 패스
-        return jwtUtils.generateToken(userInfo.getEmail(), userInfo.getNickname());
+        return jwtUtils.generateToken(userInfo.getEmail(), userInfo.getNickname(), savedMember.getId());
     }
 
     public void validateEmail(String email) {
