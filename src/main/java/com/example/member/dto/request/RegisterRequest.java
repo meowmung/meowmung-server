@@ -5,10 +5,10 @@ import com.example.member.common.MemberRole;
 import com.example.member.entity.Member;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-public record RegisterRequest(String email, String password, String nickname) {
+public record RegisterRequest(String mail, String password, String nickname) {
     public Member toEntity(PasswordEncoder passwordEncoder) {
         return Member.builder()
-                .email(email)
+                .email(mail)
                 .password(passwordEncoder.encode(password))
                 .nickname(nickname)
                 .loginType(LoginType.JWT)
