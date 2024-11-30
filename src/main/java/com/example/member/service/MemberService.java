@@ -65,7 +65,7 @@ public class MemberService {
         return jwtUtils.generateToken(member.getEmail(), member.getNickname(), member.getId());
     }
 
-    public void register(RegisterRequest registerRequest) {
+    public Member register(RegisterRequest registerRequest) {
         validateEmail(registerRequest.mail());
         validatePassword(registerRequest.password());
 
@@ -76,7 +76,7 @@ public class MemberService {
 //        Optional<Member> byUsername = memberRepository./**/findByUsername(registerRequest.username());
 //        if(byUsername.isPresent()) throw new RuntimeException("이미 등록된 이름");
         Member entity = registerRequest.toEntity(passwordEncoder);
-        memberRepository.save(entity);
+        return memberRepository.save(entity);
     }
 
     private OauthLoginInfo findOAuth2LoginType(LoginType type) {

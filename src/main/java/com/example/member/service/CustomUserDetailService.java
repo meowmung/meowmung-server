@@ -2,7 +2,6 @@ package com.example.member.service;
 
 import com.example.member.entity.CustomUserDetails;
 import com.example.member.repository.MemberRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
