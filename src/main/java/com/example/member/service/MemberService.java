@@ -49,9 +49,6 @@ public class MemberService {
     private final RandomNumberRepository randomNumberRepository;
 
     public String login(LoginRequest loginRequest) {
-//        if (!emailExists(loginRequest.email())){
-//            throw new RuntimeException();
-//        }
         validateEmail(loginRequest.mail());
         Optional<Member> loginMember = memberRepository.findByEmail(loginRequest.mail());
         if (loginMember.isEmpty()) {
@@ -62,7 +59,7 @@ public class MemberService {
                 loginRequest.password(), member.getPassword())) {
             throw new RuntimeException("로그인 실패");
         }
-        return jwtUtils.generateToken(member.getEmail(), member.getNickname(), member.getId());
+        return jwtUtils.generateToken(member.getEmail(), member.getNickname(), member.getId(), member.getMemberRole());
     }
 
     public Member register(RegisterRequest registerRequest) {
@@ -149,7 +146,7 @@ public class MemberService {
         savedMember = memberRepository.findByEmail(userInfo.getEmail())
                 .orElseThrow(RuntimeException::new);
         // 있으면 패스
-        return jwtUtils.generateToken(userInfo.getEmail(), userInfo.getNickname(), savedMember.getId());
+        return jwtUtils.generateToken(userInfo.getEmail(), userInfo.getNickname(), savedMember.getId(), savedMember.getMemberRole());
     }
 
     public void validateEmail(String email) {
