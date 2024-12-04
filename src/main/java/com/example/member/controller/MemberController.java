@@ -10,7 +10,6 @@ import com.example.member.service.MemberService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,9 +32,10 @@ public class MemberController {
     }
 
     @PostMapping("/auth/register")
-    public Member register(@RequestBody RegisterRequest registerRequest) {
+    public Boolean register(@RequestBody RegisterRequest registerRequest) {
         log.info("register request: {}", registerRequest);
-        return memberService.register(registerRequest);
+                memberService.register(registerRequest);
+        return Boolean.TRUE;
     }
 
     @PostMapping("/auth/mail")
@@ -43,7 +43,7 @@ public class MemberController {
         memberService.sendMail(mailRequest);
     }
 
-    @GetMapping("/auth/mail")
+    @PostMapping("/auth/mail/check")
     public boolean mailCheck(@RequestBody MailCheckRequest mailCheckRequest){
         return memberService.mailCheck(mailCheckRequest);
     }
