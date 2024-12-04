@@ -112,5 +112,11 @@ public class TestController {
         System.out.println(hi);
 //        return mai
     }
-
+    @GetMapping("/test/v5")
+    public void testv5(@RequestHeader("Authorization") String token,
+                       @RequestHeader("X-Authorization-memberId") String memberId) {
+        System.out.println(token);
+        System.out.println(memberId);
+//        return mai
+    }
 }

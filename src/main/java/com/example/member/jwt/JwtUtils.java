@@ -1,5 +1,6 @@
 package com.example.member.jwt;
 
+import com.example.member.common.MemberRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -24,13 +25,14 @@ public class JwtUtils {
     }
 
     // JWT 생성하기
-    public String generateToken(String email, String nickname, Long memeberId){
+    public String generateToken(String email, String nickname, Long memeberId, MemberRole memberRole) {
         Date expirationDate = new Date(System.currentTimeMillis() + expiration);
         return Jwts.builder()
                 .subject(email)
                 .expiration(expirationDate)
                 .claim("nickname", nickname)
                 .claim("userId",memeberId)
+                .claim("role", memberRole)
                 .signWith(key)
                 .compact();
     }

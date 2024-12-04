@@ -49,9 +49,6 @@ public class MemberService {
     private final RandomNumberRepository randomNumberRepository;
 
     public String login(LoginRequest loginRequest) {
-//        if (!emailExists(loginRequest.email())){
-//            throw new RuntimeException();
-//        }
         validateEmail(loginRequest.mail());
         Optional<Member> loginMember = memberRepository.findByEmail(loginRequest.mail());
         if (loginMember.isEmpty()) {
@@ -62,10 +59,10 @@ public class MemberService {
                 loginRequest.password(), member.getPassword())) {
             throw new RuntimeException("로그인 실패");
         }
-        return jwtUtils.generateToken(member.getEmail(), member.getNickname(), member.getId());
+        return jwtUtils.generateToken(member.getEmail(), member.getNickname(), member.getId(), member.getMemberRole());
     }
 
-    public void register(RegisterRequest registerRequest) {
+    public Member register(RegisterRequest registerRequest) {
         validateEmail(registerRequest.mail());
         validatePassword(registerRequest.password());
 
@@ -76,7 +73,7 @@ public class MemberService {
 //        Optional<Member> byUsername = memberRepository./**/findByUsername(registerRequest.username());
 //        if(byUsername.isPresent()) throw new RuntimeException("이미 등록된 이름");
         Member entity = registerRequest.toEntity(passwordEncoder);
-        memberRepository.save(entity);
+        return memberRepository.save(entity);
     }
 
     private OauthLoginInfo findOAuth2LoginType(LoginType type) {
@@ -149,7 +146,7 @@ public class MemberService {
         savedMember = memberRepository.findByEmail(userInfo.getEmail())
                 .orElseThrow(RuntimeException::new);
         // 있으면 패스
-        return jwtUtils.generateToken(userInfo.getEmail(), userInfo.getNickname(), savedMember.getId());
+        return jwtUtils.generateToken(userInfo.getEmail(), userInfo.getNickname(), savedMember.getId(), savedMember.getMemberRole());
     }
 
     public void validateEmail(String email) {
