@@ -7,12 +7,14 @@ import com.example.member.dto.request.MailCheckRequest;
 import com.example.member.dto.request.MailRequest;
 import com.example.member.dto.request.OauthRequest;
 import com.example.member.dto.request.RegisterRequest;
+import com.example.member.dto.response.MypageResponse;
 import com.example.member.entity.Member;
 import com.example.member.entity.RandomNumber;
 import com.example.member.jwt.JwtUtils;
 import com.example.member.oauth.OauthLoginInfo;
 import com.example.member.repository.MemberRepository;
 import com.example.member.repository.RandomNumberRepository;
+import io.lettuce.core.ScriptOutputType;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletResponse;
@@ -120,9 +122,9 @@ public class MemberService {
     /**
      * 계쩡이 존재하면 true 없으면 false
      */
-    private Boolean emailExists(String email) {
-        Member byEmail = memberRepository.findByEmail(email).orElseThrow(RuntimeException::new);
-        return byEmail != null;
+    public Boolean emailExists(String email) {
+        Optional<Member> byEmail = memberRepository.findByEmail(email);
+        return byEmail.isPresent();
     }
 
     public String oauthLogin(OauthRequest request, HttpServletResponse response) {
@@ -132,6 +134,8 @@ public class MemberService {
          *  없으면 db에 저장 통과
          *  토큰발급
          */
+        System.out.println(request.code());
+        System.out.println(request.type());
         OauthLoginInfo oauthLoginInfo = findOAuth2LoginType(request.type());
         ResponseEntity<String> accessTokenRes = oauthLoginInfo.requestAccessToken(request.code());
         OauthTokenDto accessTokenDto = oauthLoginInfo.getAccessToken(accessTokenRes);
@@ -146,7 +150,10 @@ public class MemberService {
         savedMember = memberRepository.findByEmail(userInfo.getEmail())
                 .orElseThrow(RuntimeException::new);
         // 있으면 패스
-        return jwtUtils.generateToken(userInfo.getEmail(), userInfo.getNickname(), savedMember.getId(), savedMember.getMemberRole());
+        String s = jwtUtils.generateToken(userInfo.getEmail(), userInfo.getNickname(), savedMember.getId(),
+                savedMember.getMemberRole());
+        System.out.println(s);
+        return s;
     }
 
     public void validateEmail(String email) {
@@ -185,5 +192,19 @@ public class MemberService {
             System.err.println("MemberService.createCode() exception occur");
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean deleteMember(Long memberId) {
+        try {
+            memberRepository.deleteById(memberId);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public MypageResponse mypage(Long memberId){
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("그런 사용자 없어요"));
+        return MypageResponse.fromEntity(member);
     }
 }

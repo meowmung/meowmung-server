@@ -5,13 +5,17 @@ import com.example.member.dto.request.MailCheckRequest;
 import com.example.member.dto.request.MailRequest;
 import com.example.member.dto.request.OauthRequest;
 import com.example.member.dto.request.RegisterRequest;
+import com.example.member.dto.response.MypageResponse;
 import com.example.member.entity.Member;
 import com.example.member.service.MemberService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -38,6 +42,11 @@ public class MemberController {
         return Boolean.TRUE;
     }
 
+    @PostMapping("/auth/mail/duplicate")
+    public boolean duplicate(@RequestBody MailRequest mailRequest) {
+        return memberService.emailExists(mailRequest.getMail());
+    }
+
     @PostMapping("/auth/mail")
     public void sendMail(@RequestBody MailRequest mailRequest) {
         memberService.sendMail(mailRequest);
@@ -47,4 +56,15 @@ public class MemberController {
     public boolean mailCheck(@RequestBody MailCheckRequest mailCheckRequest){
         return memberService.mailCheck(mailCheckRequest);
     }
+
+    @DeleteMapping("/member/delete")
+    public boolean deleteMember(@RequestHeader("X-Authorization-memberId") Long memberId){
+        return memberService.deleteMember(memberId);
+    }
+
+    @GetMapping("/member/mypage")
+    public MypageResponse mypage(@RequestHeader("X-Authorization-memberId") Long memberId){
+        return memberService.mypage(memberId);
+    }
+
 }

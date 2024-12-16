@@ -1,3 +1,4 @@
+/*
 package com.example.member.controller;
 
 import com.example.member.entity.CustomUserDetails;
@@ -119,4 +120,4 @@ public class TestController {
         System.out.println(memberId);
 //        return mai
     }
-}
+}*/
